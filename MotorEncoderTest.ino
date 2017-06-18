@@ -17,10 +17,21 @@
 #define LEFT 0
 #define RIGHT 1
 
-long coder[2] = {
+const float pi = 3.142;
+float EnRes = 10;
+
+float T;  
+
+
+//long coder[2] = {
+//  0,0};
+//int lastSpeed[2] = {
+//  0,0}; 
+
+float coder[2] = {
   0,0};
-int lastSpeed[2] = {
-  0,0};  
+float radps[2] = {
+  0,0}; 
 
 
 void setup(){
@@ -37,14 +48,26 @@ void loop(){
   
   if(millis() - timer > 500){                   
     //Serial.print("Coder value: ");
+
+    T = float(millis()-timer) ;
+    
+        radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
+        radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
+
+
+    
     Serial.print(coder[LEFT]);
     Serial.print("\t");
+    Serial.print(radps[LEFT]);
+    Serial.print("\t");
     //Serial.print("[Left Wheel] ");
-    Serial.println(coder[RIGHT]);
+    Serial.print(coder[RIGHT]);
+    Serial.print("\t");
+    Serial.println(radps[RIGHT]);
     //Serial.println("[Right Wheel]");
     
-    lastSpeed[LEFT] = coder[LEFT];   //record the latest speed value
-    lastSpeed[RIGHT] = coder[RIGHT];
+//    lastSpeed[LEFT] = coder[LEFT];   //record the latest speed value
+//    lastSpeed[RIGHT] = coder[RIGHT];
     coder[LEFT] = 0;                 //clear the data buffer
     coder[RIGHT] = 0;
     timer = millis();
