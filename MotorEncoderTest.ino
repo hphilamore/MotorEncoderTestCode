@@ -20,7 +20,21 @@
 const float pi = 3.142;
 float EnRes = 10;
 
-float T;  
+float T; 
+long DrivePeriod;
+unsigned long DriveStartTime; 
+
+// the time (in mS) increment to record the encoder output for before outputting to serial 
+int TachoIncrement = 500;
+
+// motor one
+int enA = 5;
+int in1 = 7;
+int in2 = 6;
+// motor two
+int enB = 9;
+int in3 = 11;
+int in4 = 10;
 
 
 //long coder[2] = {
@@ -37,43 +51,127 @@ float radps[2] = {
 void setup(){
   
   Serial.begin(9600);                            //init the Serial port to print the data
-  attachInterrupt(LEFT, LwheelSpeed, CHANGE);    //init the interrupt mode for the digital pin 2
-  attachInterrupt(RIGHT, RwheelSpeed, CHANGE);   //init the interrupt mode for the digital pin 3
+//  attachInterrupt(LEFT, LwheelSpeed, CHANGE);    //init the interrupt mode for the digital pin 2
+//  attachInterrupt(RIGHT, RwheelSpeed, CHANGE);   //init the interrupt mode for the digital pin 3
+  attachInterrupt(LEFT, LwheelSpeed, FALLING);    //init the interrupt mode for the digital pin 2
+  attachInterrupt(RIGHT, RwheelSpeed, FALLING);   //init the interrupt mode for the digital pin 3
+
+    pinMode(enA, OUTPUT);
+    pinMode(in1, OUTPUT);
+    pinMode(in2, OUTPUT);
+    pinMode(enB, OUTPUT);
+    pinMode(in3, OUTPUT);
+    pinMode(in4, OUTPUT);
   
 }
 
+static unsigned long timer = 0;                //print manager timer
+
 void loop(){
   
-  static unsigned long timer = 0;                //print manager timer
-  
-  if(millis() - timer > 500){                   
-    //Serial.print("Coder value: ");
+//  Drive(200, 200, 2000);   
+//  if(millis() - timer > TachoIncrement){                  
+//  T = float(millis()-timer) ;
+//  radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
+//  radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
+//    Serial.print(coder[LEFT]);
+//    Serial.print("\t");
+//    Serial.print(radps[LEFT]);
+//    Serial.print("\t");
+//    Serial.print(coder[RIGHT]);
+//    Serial.print("\t");
+//    Serial.println(radps[RIGHT]);
+//    coder[LEFT] = 0;                 //clear the data buffer
+//    coder[RIGHT] = 0;
+//    timer = millis();
+//  }
 
+
+
+
+  for (int i = 0; i < 255; i = i + 10)  
+  {
+    Drive(i, i, 2000); 
+    if(millis() - timer > TachoIncrement){                  
     T = float(millis()-timer) ;
-    
-        radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
-        radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
-
-
-    
+    radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
+    radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
     Serial.print(coder[LEFT]);
     Serial.print("\t");
     Serial.print(radps[LEFT]);
     Serial.print("\t");
-    //Serial.print("[Left Wheel] ");
     Serial.print(coder[RIGHT]);
     Serial.print("\t");
     Serial.println(radps[RIGHT]);
-    //Serial.println("[Right Wheel]");
-    
-//    lastSpeed[LEFT] = coder[LEFT];   //record the latest speed value
-//    lastSpeed[RIGHT] = coder[RIGHT];
     coder[LEFT] = 0;                 //clear the data buffer
     coder[RIGHT] = 0;
     timer = millis();
   }
+  }
+  // decelerate from maximum speed to zero
+  for (int i = 255; i >= 0; i = i - 10)
+  {
+    Drive(i, i, 2000); 
+    if(millis() - timer > TachoIncrement){                  
+    T = float(millis()-timer) ;
+    radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
+    radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
+    Serial.print(coder[LEFT]);
+    Serial.print("\t");
+    Serial.print(radps[LEFT]);
+    Serial.print("\t");
+    Serial.print(coder[RIGHT]);
+    Serial.print("\t");
+    Serial.println(radps[RIGHT]);
+    coder[LEFT] = 0;                 //clear the data buffer
+    coder[RIGHT] = 0;
+    timer = millis();
+  }
+  } 
   
 }
+
+
+void Drive(int leftMotorSpeed, int rightMotorSpeed, long DrivePeriod) 
+  {  
+     // set motor direction
+    if(leftMotorSpeed < 0) 
+    {
+      digitalWrite(in1, HIGH);
+      digitalWrite(in2, LOW);
+      leftMotorSpeed = abs(leftMotorSpeed);
+    }
+    
+    else
+    {
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
+    }
+  
+    // set motor direction
+    if(rightMotorSpeed < 0) 
+    {
+      digitalWrite(in3, HIGH);
+      digitalWrite(in4, LOW);
+      rightMotorSpeed = abs(rightMotorSpeed);
+    }
+    
+    else
+    {
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, HIGH);
+    }
+  
+    DriveStartTime = millis() ;   
+            
+    while ((millis() - DriveStartTime) < DrivePeriod)         
+    {        
+      analogWrite(enA, leftMotorSpeed);
+      analogWrite(enB, rightMotorSpeed); 
+      //tachometer(leftMotorSpeed, rightMotorSpeed);  
+     }
+
+    }
 
 
 void LwheelSpeed()
