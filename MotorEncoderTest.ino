@@ -92,43 +92,12 @@ void loop(){
   for (int i = 0; i < 255; i = i + 10)  
   {
     Drive(i, i, 2000); 
-//    if(millis() - timer > TachoIncrement){                  
-//    T = float(millis()-timer) ;
-//    radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
-//    radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
-//    Serial.print(coder[LEFT]);
-//    Serial.print("\t");
-//    Serial.print(radps[LEFT]);
-//    Serial.print("\t");
-//    Serial.print(coder[RIGHT]);
-//    Serial.print("\t");
-//    Serial.println(radps[RIGHT]);
-//    coder[LEFT] = 0;                 //clear the data buffer
-//    coder[RIGHT] = 0;
-//    timer = millis();
-//  }
-tachometer();
+
   }
   // decelerate from maximum speed to zero
   for (int i = 255; i >= 0; i = i - 10)
   {
     Drive(i, i, 2000); 
-//    if(millis() - timer > TachoIncrement){                  
-//    T = float(millis()-timer) ;
-//    radps[LEFT] = 2*pi*1000*float(coder[LEFT])/(EnRes * T); 
-//    radps[RIGHT] = 2*pi*1000*float(coder[RIGHT])/(EnRes * T);
-//    Serial.print(coder[LEFT]);
-//    Serial.print("\t");
-//    Serial.print(radps[LEFT]);
-//    Serial.print("\t");
-//    Serial.print(coder[RIGHT]);
-//    Serial.print("\t");
-//    Serial.println(radps[RIGHT]);
-//    coder[LEFT] = 0;                 //clear the data buffer
-//    coder[RIGHT] = 0;
-//    timer = millis();
-//}
-    tachometer();
   
   } 
   
@@ -172,6 +141,7 @@ void Drive(int leftMotorSpeed, int rightMotorSpeed, long DrivePeriod)
       analogWrite(enA, leftMotorSpeed);
       analogWrite(enB, rightMotorSpeed); 
       //tachometer(leftMotorSpeed, rightMotorSpeed);  
+      tachometer();
      }
 
     }
